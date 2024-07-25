@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>System Monitoring Dashboard</title>
+
+    <!-- Socket.IO and jQuery -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.0.1/socket.io.js"
+        integrity="sha512-q/dWJ3kcmjBLU4Qc47E4A9kTB4m3wuTY7vkFJDTZKjTs8jhyGQnaUrxa0Ytd0ssMZhbNua9hE+E7Qv1j+DyZwA=="
+        crossorigin="anonymous"></script>
+    <script src="https://code.jquery.com/jquery-3.7.1.js"></script>
+
+    <!-- Custom CSS -->
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f4;
+            color: #333;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+        }
+
+        main {
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+            padding: 20px;
+            width: 300px;
+            text-align: center;
+        }
+
+        h1 {
+            font-size: 24px;
+            margin-bottom: 20px;
+        }
+
+        p {
+            font-size: 18px;
+            margin: 10px 0;
+        }
+
+        .status {
+            font-weight: bold;
+        }
+
+        .loading {
+            color: #888;
+        }
+
+        .value {
+            font-size: 22px;
+            color: #007bff;
+        }
+
+        @media (max-width: 600px) {
+            main {
+                width: 90%;
+                padding: 15px;
+            }
+
+            h1 {
+                font-size: 20px;
+            }
+
+            p {
+                font-size: 16px;
+            }
+        }
+    </style>
+</head>
+<body>
+
+<main>
+    <h1>Информация о системе</h1>
+    <p class="status" id="cpu">Использовано ЦПУ: <span class="value loading">loading...</span></p>
+    <p class="status" id="memory">Использовано памяти: <span class="value loading">loading...</span></p>
+</main>
+
+<script type="text/javascript" charset="utf-8">
+    var socket = io();
+
+    socket.on('connect', function () {
+        console.log('Connected to server');
+        socket.emit('my event', {data: 'I\'m connected!'});
+    });
+
+    socket.on('system info', (data) => {
+        let info = JSON.parse(data);
+        $("#cpu .value").text(info.cpu_usage + "%").removeClass('loading');
+        $("#memory .value").text(info.memory_usage + "%").removeClass('loading');
+    });
+
+    socket.on('disconnect', function () {
+        console.log('Disconnected from server');
+        $("#cpu .value").text('Disconnected').addClass('loading');
+        $("#memory .value").text('Disconnected').addClass('loading');
+    });
+</script>
+
+</body>
+</html>
